@@ -8,46 +8,66 @@ import java.util.ArrayList;
 public class MousePanel extends JPanel {
 
 	private Point location;
-	private ArrayList<Dot> dotList;
+	private ArrayList<MovingDot> dotList;
 
 	public MousePanel() {
 		//setBackground(Color.BLACK);
 		setPreferredSize(new Dimension(500,500));
-		dotList = new ArrayList<Dot>();
+		dotList = new ArrayList<MovingDot>();
 		MousePlay mp = new MousePlay();
 		addMouseListener(mp);
 		addMouseMotionListener(mp);
 
 	}
 
+	private void generateDot(Point p){
+		System.out.println("Generate Dot");
+
+
+		MovingDot  d = new MovingDot(new Point(getWidth()/2,getHeight()/2), p, 1, this);
+		dotList.add(d);
+		Thread t = new Thread(d);
+		t.start();
+	}
+
 	@Override
-	protected void paintComponent(Graphics g) {
+	protected synchronized void paintComponent(Graphics g) {
 		super.paintComponent(g);
 		if (location != null) {
 			Dot d = new Dot(location);
 			d.setColor(Color.RED);
 			d.paint(g);
  		}
-		for (Dot d:dotList){
+		for (MovingDot d:dotList){
+
+			if (d.getLeft() < 0 || d.getRight()>getWidth()){
+				d.reflectX();
+			}
+			if (d.getTop() < 0 || d.getBottom() > getHeight() ){
+				d.reflectY();
+			}
+
 			d.paint(g);
 		}
 	}
+
 
 
 	private class MousePlay implements MouseListener, MouseMotionListener {
 
 		@Override
 		public void mouseClicked(MouseEvent e) {
+
 			System.out.println("MouseClicked");
-			location  =e.getPoint();
-			System.out.println(location);
+			generateDot(e.getPoint());
+
 			repaint();
 
 		}
 
 		@Override
 		public void mousePressed(MouseEvent e) {
-			System.out.println("MousePressed");
+			/*System.out.println("MousePressed");
 			location  =e.getPoint();
 
 			for (Dot d: dotList){
@@ -56,30 +76,30 @@ public class MousePanel extends JPanel {
 					break;
 				}
 			}
-			repaint();
+			repaint();*/
 		}
 
 		@Override
 		public void mouseReleased(MouseEvent e) {
-			Dot d = new Dot(e.getPoint());
-			dotList.add(d);
-			repaint();
+			//Dot d = new Dot(e.getPoint());
+			//dotList.add(d);
+			//repaint();
 		}
 
 		@Override
 		public void mouseEntered(MouseEvent e) {
-			System.out.println("MouseEntered");
+			//System.out.println("MouseEntered");
 		}
 
 		@Override
 		public void mouseExited(MouseEvent e) {
-			System.out.println("MouseExited");
+			//System.out.println("MouseExited");
 		}
 
 		@Override
 		public void mouseDragged(MouseEvent e) {
-			location  =e.getPoint();
-			repaint();
+			//location  =e.getPoint();
+			//repaint();
 		}
 
 		@Override

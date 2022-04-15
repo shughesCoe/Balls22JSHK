@@ -1,24 +1,42 @@
 import java.awt.*;
 
 public class Dot {
-
-	protected Point center;
 	protected int radius;
 	protected Color color;
+	protected double x;
+	protected double y;
 
 	public Dot(Point center) {
-		this.center = center;
+		this.x = center.x;
+		this.y = center.y;
 		radius = 5;
 		color = Color.BLUE;
+	}
+
+	public Point getCenter() {
+		return new Point((int)x, (int)y);
+	}
+	public int getTop(){
+		return (int) y -radius;
+	}
+	public int getBottom(){
+		return (int) y + radius;
+	}
+	public int getLeft(){
+		return (int) x - radius;
+	}
+	public int getRight(){
+		return (int) x +radius;
 	}
 
 
 	void paint(Graphics g){
 		g.setColor(color);
-		g.fillOval(center.x-radius,center.y-radius, radius*2, radius*2 );
+		g.fillOval(getLeft(), getTop(), radius*2, radius*2 );
 	}
 
 	public boolean isInside(Point p){
+		Point center = new Point((int)x,(int)y);
 		return p.distance(center)<radius;
 	}
 
@@ -26,7 +44,4 @@ public class Dot {
 		this.color = c;
 	}
 
-	public void setCenter(Point center) {
-		this.center = center;
-	}
 }
