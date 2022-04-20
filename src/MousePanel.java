@@ -21,10 +21,9 @@ public class MousePanel extends JPanel {
 	}
 
 	private void generateDot(Point p){
-		System.out.println("Generate Dot");
-
-
-		MovingDot  d = new MovingDot(new Point(getWidth()/2,getHeight()/2), p, 1, this);
+		MovingDot  d = new MovingDot(new Point(getWidth()/2,getHeight()/2), p, 1);
+		d = new BoundedDotDecorator(d, new Point(getWidth(),getHeight()) );
+		d = new GravityDotDecorator(d);
 		dotList.add(d);
 		Thread t = new Thread(d);
 		t.start();
@@ -40,15 +39,10 @@ public class MousePanel extends JPanel {
  		}
 		for (MovingDot d:dotList){
 
-			if (d.getLeft() < 0 || d.getRight()>getWidth()){
-				d.reflectX();
-			}
-			if (d.getTop() < 0 || d.getBottom() > getHeight() ){
-				d.reflectY();
-			}
-
 			d.paint(g);
 		}
+		repaint();
+
 	}
 
 

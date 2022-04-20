@@ -16,6 +16,12 @@ public class Dot {
 	public Point getCenter() {
 		return new Point((int)x, (int)y);
 	}
+
+	public void setCenter(Point p){
+		x = p.x;
+		y = p.y;
+	}
+
 	public int getTop(){
 		return (int) y -radius;
 	}
@@ -29,6 +35,9 @@ public class Dot {
 		return (int) x +radius;
 	}
 
+	public Rectangle getRegion(){
+		return  new Rectangle(getTop(),getLeft(), 2*radius, 2 *radius);
+	}
 
 	void paint(Graphics g){
 		g.setColor(color);
