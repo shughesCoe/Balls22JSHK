@@ -16,13 +16,18 @@ public class BoundedDotDecorator extends MovingDecorator{
         this.md = md;
     }
 
+
     @Override
     public void move() {
         if (getLeft() < topLeft.x || getRight()>bottomRight.x){
             md.setMotion(-md.getDx(),md.getDy());
         }
-        if (getTop() < topLeft.y || getBottom() > bottomRight.y ){
+        if (getTop() < topLeft.y ){
+
             md.setMotion(md.getDx(),-md.getDy());
+        }
+        if (getBottom() > bottomRight.y){
+
         }
         md.move();
     }

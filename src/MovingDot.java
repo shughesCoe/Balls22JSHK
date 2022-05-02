@@ -51,6 +51,25 @@ public class MovingDot extends Dot implements Runnable{
         y += dy;
     }
 
+    public void hitBy(Obstacle b) {
+        //System.out.println("DTop: " + getTop() + " DBottom: " + getBottom());
+        //System.out.println("BTop: " + b.top() + " BBottom: " + b.bottom());
+        //System.out.println("DLeft: " + getLeft() + " DRight: " + getRight());
+        //System.out.println("BLeft: " + b.left() + " BRight: " + b.right());
+        //System.out.println(b.getRegion());
+        if ((getTop() > b.top()) && (getBottom() < b.bottom())) {
+            setMotion(-getDx(), getDy());
+        } else {
+            if ((getLeft() > b.left()) && (getRight() < b.right())) {
+                setMotion(getDx(), -getDy());
+            }
+            else{
+                setMotion(-getDx(), getDy());
+                setMotion(getDx(), -getDy());
+            }
+        }
+    }
+
     public void run() {
         while (true) {
             move();
