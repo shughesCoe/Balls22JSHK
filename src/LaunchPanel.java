@@ -1,7 +1,6 @@
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
+import java.awt.event.*;
 import java.util.ArrayList;
 import java.util.Random;
 
@@ -12,31 +11,47 @@ public class LaunchPanel extends JPanel {
     ArrayList<Obstacle> destroyedObstacles;
     Obstacle o;
     Obstacle o2;
-    Dot launchPoint;
+    //Dot launchPoint;
+    //LaunchPlatform launchPlatform;
+    PlatformDot platform;
     Point s;
     Point bottomRight;
     Color[] colors;
+    int numBallsAllowed;
 
 
-    public LaunchPanel() {
+    public LaunchPanel(int numBallsAllowed) {
         setPreferredSize(new Dimension(500,500));
         dots = new ArrayList<MovingDot>();
         obstacles = new ArrayList<Obstacle>();
         destroyedObstacles = new ArrayList<Obstacle>();
+        this.numBallsAllowed = numBallsAllowed;
         colors = new Color[] {Color.RED, Color.GREEN, Color.YELLOW, Color.BLUE, Color.MAGENTA};
-        generateObstacles(2, new Point(54, 22), 96, 22, 4, colors, 10, 500);
+        //Obstacle o = new Obstacle(new Point(150, 150), 20, 150, 50, colors[3]);
+        //obstacles.add(o);
+        generateObstacles(30, new Point(50, 22), 96, 22, 4, colors, 1, 500);
 
-        s = new Point(250,250);
-        launchPoint =new Dot(s);
-        launchPoint.setColor(Color.GREEN);
+        s = new Point(250,450);
+        //launchPoint =new Dot(s);
+        platform = new PlatformDot(s, new Point(0, s.y), new Point(500, s.y));
+        getInputMap().put(KeyStroke.getKeyStroke("A"), "moveLeft");
+        getActionMap().put("moveLeft", new LeftAction());
+        getInputMap().put(KeyStroke.getKeyStroke("D"), "moveRight");
+        getActionMap().put("moveRight", new RightAction());
+        getInputMap().put(KeyStroke.getKeyStroke("SPACE"), "fireBall");
+        getActionMap().put("fireBall", new SpaceAction());
+        //launchPlatform = new LaunchPlatform(new Point(250,250), 100, 50, Color.BLACK, 1);
+        //launchPoint.setColor(Color.GREEN);
         bottomRight = new Point(500, 500);
 
+        //addKeyListener(new LaunchPanel.KeyPlay());
         addMouseListener(new LaunchPanel.MousePlay());
+
+
     }
 
     private void generateObstacles(int numObstacles, Point start, int obstacleWidth, int obstacleHeight, int obstacleGap, Color[] colors, int HP, int windowWidth) {
         Point currentCenter = new Point(start.x + (obstacleWidth/2), start.y + (obstacleHeight/2));
-
         Random rand = new Random();
         int numObstaclesPerRow = Math.floorDiv(windowWidth, (obstacleWidth + obstacleGap));
         int numRows = (int) Math.ceil(numObstacles/numObstaclesPerRow);
@@ -45,7 +60,7 @@ public class LaunchPanel extends JPanel {
         }
         for(int g = 0; g < numRows; g++) {
             for (int h = 0; h < numObstaclesPerRow; h++) {
-                System.out.println("Current Center: " + currentCenter);
+                //System.out.println("Current Center: " + currentCenter);
                 if (h < numObstacles) {
                     int colorIndex = rand.nextInt(colors.length);
                     obstacles.add(new Obstacle(currentCenter, HP, obstacleWidth, obstacleHeight, colors[colorIndex]));
@@ -54,28 +69,6 @@ public class LaunchPanel extends JPanel {
             }
             currentCenter.setLocation(start.x + (obstacleHeight/2), currentCenter.y + obstacleHeight + obstacleGap);
         }
-
-        /*int currentX = start.x;
-        int currentY = start.y;
-        Random random = new Random();
-        int numObstaclesPerRow = Math.floorDiv(windowWidth, (obstacleWidth + obstacleGap));
-
-        int numRows = (int) Math.ceil(numObstacles/numObstaclesPerRow);
-        if(numObstaclesPerRow > numObstacles){
-            numRows = 1;
-        }
-        for(int g = 0; g < numRows; g++) {
-            for (int h = 0; h < numObstaclesPerRow; h++) {
-                System.out.println(currentX + " " + currentY);
-                if(h < numObstacles) {
-                    int colorIndex = random.nextInt(colors.length);
-                    obstacles.add(new Obstacle(new Point(currentX+obstacleWidth/2, currentY+obstacleHeight/2), HP, obstacleWidth, obstacleHeight, colors[colorIndex]));
-                    currentX += obstacleWidth + obstacleGap;
-                }
-            }
-            currentX = start.x;
-            currentY += obstacleHeight + obstacleGap;
-        }*/
     }
 
     @Override
@@ -83,9 +76,11 @@ public class LaunchPanel extends JPanel {
         super.paintComponent(g);
         int h = this.getHeight();
         int w = this.getWidth();
-        Point c = new Point(w/2, h-30);
-        launchPoint.setCenter(c);
-        launchPoint.paint(g);
+        //Point c = new Point(w/2, h-30);
+        //launchPoint.setCenter(c);
+        //launchPoint.paint(g);
+        platform.paint(g);
+        //launchPlatform.paint(g);
         MovingDot dotToRemove = null;
 
         for (MovingDot d: dots) {
@@ -98,6 +93,9 @@ public class LaunchPanel extends JPanel {
                         destroyedObstacles.add(o);
                     }
                 }
+            }
+            if(d.getRegion().intersects(platform.getRegion())){
+                d.hitByPlatform(platform);
             }
             for (Obstacle o: destroyedObstacles){
                 obstacles.remove(o);
@@ -132,7 +130,7 @@ public class LaunchPanel extends JPanel {
 
     private void generateDot(Point p){
         System.out.println("Generate Dot");
-        MovingDot  d = new MovingDot(launchPoint.getCenter(), p, 1);
+        MovingDot  d = new MovingDot(new Point(p.x, p.y-platform.getRegion().height), new Point(p.x, 0), 1);
         //d = new GravityDotDecorator(d);
         d = new BoundedDotDecorator(d, new Point(getWidth(),getHeight()) );
         dots.add(d);
@@ -143,7 +141,7 @@ public class LaunchPanel extends JPanel {
     private class MousePlay implements MouseListener {
         @Override
         public void mouseClicked(MouseEvent e) {
-            generateDot(e.getPoint());
+            //generateDot(e.getPoint());
         }
 
         @Override
@@ -160,6 +158,64 @@ public class LaunchPanel extends JPanel {
 
         @Override
         public void mouseExited(MouseEvent e) {
+        }
+
+
+    }
+   /* private class KeyPlay implements KeyListener {
+
+        @Override
+        public void keyTyped(KeyEvent e) {
+            System.out.println(e.getKeyChar() + " typed");
+            if(e.getKeyCode() == KeyEvent.VK_SPACE){
+                System.out.println("Spacebar!!!");
+
+            }
+
+        }
+
+        @Override
+        public void keyPressed(KeyEvent e) {
+            System.out.println(e.getKeyChar() + " pressed");
+            if(e.getKeyCode() == KeyEvent.VK_LEFT){
+                System.out.println("Left!!");
+                launchPlatform.moveLeft();
+                repaint();
+            }
+            if(e.getKeyCode() == KeyEvent.VK_RIGHT){
+                System.out.println("Right!!");launchPlatform.moveRight();
+                repaint();
+            }
+        }
+
+        @Override
+        public void keyReleased(KeyEvent e) {
+            System.out.println(e.getKeyChar() + " released");
+
+        }
+    }*/
+    private class SpaceAction extends AbstractAction {
+       @Override
+       public void actionPerformed(ActionEvent e) {
+           if(dots.size() < numBallsAllowed){
+               generateDot(platform.getCenter());
+               repaint();
+           }
+       }
+   }
+
+    private class LeftAction extends AbstractAction {
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            platform.moveLeft();
+            repaint();
+        }
+    }
+    private class RightAction extends AbstractAction {
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            platform.moveRight();
+            repaint();
         }
     }
 }

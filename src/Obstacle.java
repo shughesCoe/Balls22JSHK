@@ -16,13 +16,13 @@ public class Obstacle {
         this.center = center;
         this.sizeX = sizeX;
         this.sizeY = sizeY;
-        System.out.println(center);
-        System.out.println(sizeX);
-        System.out.println(sizeY);
+        //System.out.println(center);
+        //System.out.println(sizeX);
+        //System.out.println(sizeY);
 
 
         region = new Rectangle(center.x-(sizeX/2),center.y-(sizeY/2), sizeX, sizeY);
-        System.out.println(region);
+        //System.out.println(region);
         this.color = color;
         hitPoints = HP;
         observer = null;

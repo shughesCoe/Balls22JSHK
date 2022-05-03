@@ -31,12 +31,10 @@ public class Dot {
 	public int getLeft(){
 		return (int) x - radius;
 	}
-	public int getRight(){
-		return (int) x +radius;
-	}
+	public int getRight(){return (int) x +radius;}
 
 	public Rectangle getRegion(){
-		return  new Rectangle(getTop(),getLeft(), 2*radius, 2 *radius);
+		return  new Rectangle(getLeft(),getTop(), 2*radius, 2 *radius);
 	}
 
 	void paint(Graphics g){
